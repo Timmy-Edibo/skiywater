@@ -7,9 +7,9 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET_KEY,
-  baseURL: 'http://localhost:3000',
+  baseURL: process.env.AUTH0_PROD_BASEURL,
   clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: 'https://dev-yglnn35w.us.auth0.com'
+  issuerBaseURL:  process.env.AUTH0_PROD_DOMAIN
 };
 
 export const authZero = auth(config)
