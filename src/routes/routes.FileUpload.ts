@@ -19,33 +19,7 @@ router.post(
   controller.createFileUploadController
 ); // create data inside db
 
-
-/** Program Block CRUD */
-// router.post(
-//   "/upload-file",
-//   // createPostValidator,
-//   // authenticateToken,
-//   upload.array("files", 10),
-//   controller.createFileUploadController
-// ); // create data inside db
-
-
-// router.post(
-//   "/upload-file",
-//   // createPostValidator,
-//   // authenticateToken,
-//   upload.fields([{name:'files'}]),
-//   controller.createFileUploadController
-// ); // create data inside db
-
-
 router.get("/list", authenticateToken, controller.readAllPostController); // read or view all data inside db
-router.get(
-  "/list/:Id/followed-posts",
-  authenticateToken,
-  controller.readAllPostByFollowersController
-); // read or view all data inside db
-
 router.get("/:fileId", authenticateToken, controller.getFileController); // read or view all data inside db
 router.delete("/:fileId", authenticateToken, controller.deleteFileController); // read or view all data inside db
 export default router;
