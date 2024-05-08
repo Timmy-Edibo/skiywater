@@ -3,7 +3,6 @@ import mongoose, { Types } from "mongoose";
 import { validationResult } from "express-validator";
 import userRepository from "../repository/repository.User";
 import fileUploadRepository from "../repository/repository.FileUpload";
-import postRepository from "../repository/repository.Post";
 
 import {
   createSuccessResponse,
@@ -61,49 +60,6 @@ const createFileUploadController = async (req: Request, res: Response) => {
 };
 
 
-
-
-
-// const createMultipleFileUploadController = async (req: Request, res: Response) => {
-//   console.log("inside the endpoiint..........", typeof req.files, req.files);
-
-//   try {
-//     const params = {
-//       Bucket: bucketName,
-//       Key: req.files.originalname,
-//       Body: req.file.buffer,
-//     };
-
-//     s3.upload(params, (err, data) => {
-//       if (err) {
-//         console.error(err);
-//         return res.status(500).send('Error uploading file');
-//       }
-
-//       res.send('File uploaded successfully');
-//     });
-
-//     // const errors = validationResult(req);
-//     // if (!errors.isEmpty()) {
-//     //   return res.status(400).json({ success: false, errors: errors.array() });
-//     // }
-
-//     // const post = await postRepository.createPost({
-//     //   _id: new mongoose.Types.ObjectId(),
-//     //   title,
-//     //   description,
-//     //   author: req.user,
-//     // });
-//     res.status(201).json(createSuccessResponse(post));
-//   } catch (error) {
-//     console.error(createErrorResponse("Error creating post"), error);
-//     res.status(500).json(createErrorResponse(`Internal server error ${error}`));
-//   }
-// };
-
-
-
-
 const getFileController = async (req: Request, res: Response) => {
   try {
     const fileId = req.params.fileId;
@@ -118,7 +74,6 @@ const getFileController = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 
 const deleteFileController = async (req: Request, res: Response) => {
@@ -150,10 +105,8 @@ const deleteFileController = async (req: Request, res: Response) => {
 
 
 const readAllPostController = async (req: Request, res: Response) => {
-  const userId = req.params.userId;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
-  // console.log("caledd.......................")
   const io = req.app.get("io");
 
   try {
@@ -166,51 +119,37 @@ const readAllPostController = async (req: Request, res: Response) => {
     }
 
     // console.log("all post:..........")
-    let posts = await (isAdminUser
-      ? postRepository.getAllPosts(page, limit)
-      : postRepository.getAllPostByUser(req.user, page, limit));
-    io.emit("notify", { posts });
+    let files = await fileUploadRepository.getAllFiles(page, limit)
+    io.emit("notify", { files });
 
-    return res.status(200).json(createSuccessResponse(posts));
+    return res.status(200).json(createSuccessResponse(files));
   } catch (error) {
     console.error("Error reading all posts:", error);
     return res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
-const readAllPostByFollowersController = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    let posts = await postRepository.getAllPostByFollowers(req.user);
-    return res.status(200).json(createSuccessResponse(posts));
-  } catch (error) {
-    console.error("Error reading all posts:", error);
-    return res.status(500).json(createErrorResponse("Internal server error"));
-  }
-};
 
 const updatePostController = async (req: Request, res: Response) => {
   try {
-    const postId = req.params.postId;
+    const fileId = req.params.postId;
     const postData = req.body;
     const current_user = req.user;
 
     // Check if the user exists
-    const post = await postRepository.getPostById(postId);
-    if (!post) {
+    const file = await fileUploadRepository.getFileById(fileId);
+    if (!file) {
       return res.status(404).json({ message: "Post not found" });
     }
 
     const isAdminUser = await isAdmin(current_user);
-    if (!isAdminUser && post.author !== current_user) {
+    if (!isAdminUser && file.user !== current_user) {
       return res.status(401).json(createErrorResponse("Unauthorized!"));
     }
 
     // Update the user with the provided data
-    post.set(postData);
-    const updatedUser = await post.save();
+    file.set(postData);
+    const updatedUser = await file.save();
 
     // Return the updated user
     res.status(200).json({ user: updatedUser });
@@ -220,29 +159,6 @@ const updatePostController = async (req: Request, res: Response) => {
   }
 };
 
-const deletePostController = async (req: Request, res: Response) => {
-  try {
-    const postId = req.params.postId;
-    const currentUserId = req.user;
-
-    const deletedPost = await postRepository.deletePost(postId);
-    if (!deletedPost) {
-      return res.status(404).json(createErrorResponse("Post not found"));
-    }
-
-    const isAdminUser = await isAdmin(currentUserId);
-    if (!isAdminUser && deletedPost.author !== currentUserId) {
-      return res.status(401).json(createErrorResponse("Unauthorized!"));
-    }
-
-    return res
-      .status(204)
-      .json(createSuccessResponse("Post deleted successfully"));
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    return res.status(500).json(createErrorResponse("Internal server error"));
-  }
-};
 
 export default {
   createFileUploadController,
@@ -250,7 +166,6 @@ export default {
   deleteFileController,
   readAllPostController,
   updatePostController,
-  readAllPostByFollowersController,
 };
 
 

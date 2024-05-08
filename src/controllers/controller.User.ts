@@ -2,13 +2,11 @@ import { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
 import userRepository from '../repository/repository.User';
-import followRepository from '../repository/repository.Follow';
 
 import {
   createSuccessResponse,
   createErrorResponse
 } from '../config/config.error';
-import { hashPassword } from '../services/services.Auth';
 
 interface IUserExistence {
   message?: string;
@@ -129,7 +127,6 @@ const deleteUserController = async (req: Request, res: Response) => {
     const deletedUser = await userRepository.deleteUser(userId);
 
     if (deletedUser) {
-      await followRepository.deleteFollowsByUserId(userId);
       return res
         .status(204)
         .json(createSuccessResponse('User deleted successfully'));
