@@ -9,7 +9,9 @@ import {
   createErrorResponse,
 } from "../config/config.error";
 import { bucketName, s3Client } from "../services/services.FileUploader";
-import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+import { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -24,21 +26,47 @@ const isAdmin = async (current_user: string) => {
 };
 
 
+const createPresignUrlController = async (req: Request, res: Response) => {
+  try {
+    const type = req.query.type
+    const link = req.query.link
+
+    if (!link) return res.status(400).json({ success: false, error: "No link is supplied" });
+    if (!type || type !== "get") res.status(403).json({ success: false, error: "Operation not allowed" });
+
+    const param = {
+      Bucket: bucketName,
+      Key: link.toString(),
+    }
+    const command = new GetObjectCommand(param);
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 20 });
+
+    // Return the pre-signed URL to the client
+    res.status(200).json({ success: true, presignedUrl });
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+
 const createFileUploadController = async (req: Request, res: Response) => {
-  console.log(req.user)
+  console.log(req.user, req.file)
 
   try {
     if (!req.file) return res.status(400).json({ success: false, error: "No files uploaded" });
 
     console.log(req.file)
     const file = req.file
+    const dbUser = await userRepository.getUserById(req.user)
+    const userIdentifier = dbUser?.email.split("@")[0]
 
     const fileName = `${uuidv4()}-${file.originalname}`
-    const fileUrl = `uploads/${uuidv4()}-${file.originalname}`
+    const fileUrl = `${userIdentifier}/${uuidv4()}-${file.originalname}`
 
     const param = {
       Bucket: bucketName,
-      Key: fileName,
+      Key: fileUrl,
       Body: file.buffer,
       ContentType: file.mimetype
     }
@@ -104,7 +132,7 @@ const deleteFileController = async (req: Request, res: Response) => {
 
 
 
-const readAllPostController = async (req: Request, res: Response) => {
+const readAllFileController = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const io = req.app.get("io");
@@ -112,11 +140,11 @@ const readAllPostController = async (req: Request, res: Response) => {
   try {
     const isAdminUser = await isAdmin(req.user);
 
-    if (!isAdminUser) {
-      return res
-        .status(401)
-        .json(createErrorResponse("Unauthorized! Admin user only"));
-    }
+    // if (!isAdminUser) {
+    //   return res
+    //     .status(401)
+    //     .json(createErrorResponse("Unauthorized! Admin user only"));
+    // }
 
     // console.log("all post:..........")
     let files = await fileUploadRepository.getAllFiles(page, limit)
@@ -130,7 +158,7 @@ const readAllPostController = async (req: Request, res: Response) => {
 };
 
 
-const updatePostController = async (req: Request, res: Response) => {
+const updateFileController = async (req: Request, res: Response) => {
   try {
     const fileId = req.params.postId;
     const postData = req.body;
@@ -162,10 +190,11 @@ const updatePostController = async (req: Request, res: Response) => {
 
 export default {
   createFileUploadController,
+  createPresignUrlController,
   getFileController,
   deleteFileController,
-  readAllPostController,
-  updatePostController,
+  readAllFileController,
+  updateFileController,
 };
 
 

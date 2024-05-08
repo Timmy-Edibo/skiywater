@@ -3,9 +3,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 /** document */
 export interface IUser extends Document {
     _id: string;
-    fullname: string;
-    sub: string;
+    username: string;
     email: string;
+    password: string;
+    name?: string;
     bio?: string;
     is_admin: boolean;
     is_superuser: boolean;
@@ -19,8 +20,10 @@ export interface IUser extends Document {
 
  /** schema */
 const userSchema = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
   email: { type: String, unique: true, required: true },
-  fullname: String,
+  password: { type: String, required: true },
+  name: String,
   bio: String,
   profile_photo: String,
   is_admin: Boolean,

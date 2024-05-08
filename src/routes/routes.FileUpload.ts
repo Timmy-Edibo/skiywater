@@ -5,20 +5,27 @@ import {
   loginValidator,
 } from "../validators/validators.User";
 import upload from "../middleware/middleware.ImageConfig";
+import { authenticateToken } from "../middleware/middleware.AuthMiddleware";
+
 
 const router = express.Router();
-
 
 /** Program Block CRUD */
 router.post(
   "/upload-file",
   // createPostValidator,
-
+  authenticateToken,
   upload.single("file"),
   controller.createFileUploadController
 ); // create data inside db
 
-router.get("/list", controller.readAllPostController); // read or view all data inside db
-router.get("/:fileId", controller.getFileController); // read or view all data inside db
-router.delete("/:fileId", controller.deleteFileController); // read or view all data inside db
+router.post("/presign/generate", 
+authenticateToken, 
+upload.single("file"),
+controller.createPresignUrlController); 
+
+router.get("/list", controller.readAllFileController); 
+router.get("/:fileId", controller.getFileController); 
+router.delete("/:fileId", controller.deleteFileController); 
+
 export default router;

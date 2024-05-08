@@ -4,19 +4,21 @@ import {
   createUserValidator,
   updateUserValidator
 } from '../validators/validators.User';
+import { authenticateToken } from '../middleware/middleware.AuthMiddleware';
 
 const router = express.Router();
 
 /** Program Block CRUD */
 router.post('/create', createUserValidator, controller.createUserController);
-router.get('/list', controller.readAllUserController);
-router.get('/:userId', controller.readUserController);
+router.get('/list', authenticateToken, controller.readAllUserController);
+router.get('/:userId', authenticateToken, controller.readUserController);
 router.put(
   '/:userId',
 
   updateUserValidator,
+  authenticateToken,
   controller.updateUserController
 ); // update user
-router.delete('/:userId', controller.deleteUserController); // delete user
+router.delete('/:userId', authenticateToken, controller.deleteUserController); // delete user
 
 export default router;

@@ -17,10 +17,6 @@ class UserRepository {
     return User.findOne({email: email});
   }
 
-  async getUserBySub(sub: string) {
-    return User.findOne({sub: sub});
-  }
-
   async getUserByUsername(username: string) {
     return User.findOne({username: username});
   }

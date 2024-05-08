@@ -7,6 +7,7 @@ import {
   createSuccessResponse,
   createErrorResponse
 } from '../config/config.error';
+import { hashPassword } from '../services/services.Auth';
 
 interface IUserExistence {
   message?: string;
@@ -14,13 +15,17 @@ interface IUserExistence {
 }
 
 const userAlreadyExist = async (
+  username: string,
   email: string
 ): Promise<IUserExistence> => {
   const userByEmail = await userRepository.getUserByEmail(email);
-  if (userByEmail) {
+  const userByUsername = await userRepository.getUserByUsername(username);
+  if (userByEmail || userByUsername) {
     return { message: 'Email or username are already in use', exists: true };
   } else if (userByEmail) {
     return { message: 'Email already in use', exists: true };
+  } else if (userByUsername) {
+    return { message: 'Username already in use', exists: true };
   } else {
     return { exists: false };
   }
@@ -33,7 +38,8 @@ const isAdmin = async (current_user: string) => {
 
 /** create new schedule */
 const createUserController = async (req: Request, res: Response) => {
-  const { user } = req.body;
+  const { username, password, email } = req.body;
+  const hashedPassword = await hashPassword(password);
 
   try {
     const errors = validationResult(req);
@@ -41,22 +47,22 @@ const createUserController = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const userExistence = await userAlreadyExist(user?.email);
+    const userExistence = await userAlreadyExist(username, email);
     if (userExistence.exists && userExistence.message) {
       return res.status(401).json(createErrorResponse(userExistence.message));
     }
 
-    const userToDb = await userRepository.createUser({
+    const user = await userRepository.createUser({
       _id: new mongoose.Types.ObjectId(),
-      fullname: user.name,
-      email: user.email,
-      sub: user.sub,
+      username,
+      email,
+      password: hashedPassword,
       is_active: true,
       is_admin: false,
       is_superuser: false
     });
 
-    res.status(201).json(createSuccessResponse(userToDb));
+    res.status(201).json(createSuccessResponse(user));
   } catch (error) {
     console.error(createErrorResponse(`Error creating user ${error}`));
     res.status(500).json(createErrorResponse(`Internal server error ${error}`));
@@ -72,12 +78,13 @@ const readUserController = async (req: Request, res: Response) => {
 
     if (user) {
       const checkUser = await isAdmin(current_user);
-      if (checkUser || user._id === current_user) {
+      if (checkUser || user._id.toString() === current_user.toString()) {
         return res.status(200).json(createSuccessResponse({ user }));
       }
     } else {
       res.status(404).json({ message: 'User not found' });
     }
+
   } catch (error) {
     console.error('Error reading user:', error);
     res.status(500).json({ error: 'Internal server error' }); // Show error
@@ -90,11 +97,11 @@ const readAllUserController = async (req: Request, res: Response) => {
     const current_user = req.user;
     const checkUser = await isAdmin(current_user);
 
-    if (!checkUser) {
-      return res
-        .status(401)
-        .json(createErrorResponse('Unauthorized!, Admin user only'));
-    }
+    // if (!checkUser) {
+    //   return res
+    //     .status(401)
+    //     .json(createErrorResponse('Unauthorized!, Admin user only'));
+    // }
     const users = await userRepository.getAllUsers();
     res.status(200).json(createSuccessResponse(users));
   } catch (error) {
