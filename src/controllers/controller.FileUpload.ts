@@ -138,15 +138,6 @@ const readAllFileController = async (req: Request, res: Response) => {
   const io = req.app.get("io");
 
   try {
-    const isAdminUser = await isAdmin(req.user);
-
-    // if (!isAdminUser) {
-    //   return res
-    //     .status(401)
-    //     .json(createErrorResponse("Unauthorized! Admin user only"));
-    // }
-
-    // console.log("all post:..........")
     let files = await fileUploadRepository.getAllFiles(page, limit)
     io.emit("notify", { files });
 
