@@ -10,13 +10,12 @@ export default function routing(app: Express) {
   app.use("/api/v1/auth", Auth);
   app.use("/api/v1/files", FileUpload);
 
-  app.get("/", async(req, res) => {
-    const oidc = await req.oidc
-    const userInfo = oidc.user
-    const isAuthenticated = oidc.isAuthenticated() ? "logged in": "logged out"
-    console.log(isAuthenticated)
-    res.json({user: userInfo})
+  // app.get("/", async(req, res) => {
+  //   const oidc = await req.oidc
+  //   const userInfo = oidc.user
+  //   const isAuthenticated = oidc.isAuthenticated() ? "logged in": "logged out"
+  //   console.log(isAuthenticated)
+  //   res.json({user: userInfo})
 
-  })
-
+  // })
 }
