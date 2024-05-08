@@ -1,0 +1,17 @@
+node_modules
+node_modules/*
+
+dist
+/dist
+
+dist/*
+/dist/*
+
+build
+/build
+
+build/*
+/build/*
+
+node_*/
+node_*/
