@@ -15,6 +15,7 @@ export default function routing(app: Express) {
     const userInfo = oidc.user
     const isAuthenticated = oidc.isAuthenticated() ? "logged in": "logged out"
     console.log(isAuthenticated)
+    res.json({user: userInfo})
 
   })
 
