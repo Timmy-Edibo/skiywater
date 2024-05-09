@@ -7,8 +7,8 @@ Welcome to the skiywater File upload and management system. This project provide
 To set up the project, follow these steps:
 
 
-#To run locally:
-Install mongodb on your local machine:
+## To run locally:
+### Install mongodb on your local machine:
 Ubuntu: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 Windows: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
 
