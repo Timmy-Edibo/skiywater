@@ -7,12 +7,14 @@ import routing from "../constants/routes";
 import cors from "cors";
 import { app, server, io } from "../services/services.Socket"
 import { authZero } from "./services.Auth0";
+import { handleMulterErrors } from "../middleware/middleware.ImageConfig";
 
 const StartServer = () => {
   app.use(authZero)
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   routing(app); // all routes contain here
+  app.use(handleMulterErrors)
   app.use(logReqRes); // logging
   app.use(serverErrorHandling); // error handling
   app.use(cors());

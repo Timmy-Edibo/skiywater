@@ -28,7 +28,7 @@ const isAdmin = async (current_user: string) => {
 
 const DownloadPresignUrlController = async (req: Request, res: Response) => {
   try {
-    const io =req.app.get("io")
+    const io = req.app.get("io")
 
     const type = req.query.type
     const link = req.query.link
@@ -37,7 +37,7 @@ const DownloadPresignUrlController = async (req: Request, res: Response) => {
     if (!type || type !== "get") res.status(403).json({ success: false, error: "Operation not allowed" });
 
     const fileDb = await fileUploadRepository.getFileByUrl(link.toString())
-    if(!fileDb) return res.status(404).json(createErrorResponse("File not found"))
+    if (!fileDb) return res.status(404).json(createErrorResponse("File not found"))
 
     const param = {
       Bucket: bucketName,
@@ -47,15 +47,15 @@ const DownloadPresignUrlController = async (req: Request, res: Response) => {
     const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 20 });
 
     //get file with the link supplied
-    const socketData =  {message:`${req.user} viewed your file. Click to see file detail`, fileDb, ownerId: fileDb?.user, downloaderId: req.user}
+    const socketData = { message: `${req.user} viewed your file. Click to see file detail`, fileDb, ownerId: fileDb?.user, downloaderId: req.user }
     io.emit("fileDownloaded", socketData)
     console.log(socketData)
 
     // Return the pre-signed URL to the client
-    res.status(200).json({ success: true, presignedUrl });
+    res.status(200).json(createSuccessResponse({ success: true, presignedUrl }));
   } catch (error) {
     console.error("Error uploading files:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
@@ -92,34 +92,34 @@ const UploadPresignUrlController = async (req: Request, res: Response) => {
       user: req.user,
     });
 
-    io.emit("fileUploaded", { mesage:`${userIdentifier} just upload a new file. Click to view detail`, dbFile });
+    io.emit("fileUploaded", { mesage: `${userIdentifier} just upload a new file. Click to view detail`, dbFile });
 
     // Return the pre-signed URL to the client
-    res.status(200).json({ success: true, presignedUrl, dbFile });
+    res.status(200).json(createSuccessResponse({ success: true, presignedUrl, dbFile }));
   } catch (error) {
     console.error("Error uploading files:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
 
 
 const createFileUploadController = async (req: Request, res: Response) => {
-  console.log(req.user, req.file)
-  const io = req.app.get("io");
 
   try {
-    if (!req.file) return res.status(400).json({ success: false, error: "No files uploaded" });
-
+    const io = req.app.get("io");
     const file = req.file
+    const uuid = uuidv4()
+
+    if (!file) return res.status(400).json({ success: false, error: "No files uploaded" });
+
     const dbUser = await userRepository.getUserById(req.user.toString())
-    if(!dbUser) return res.status(400).json({ success: false, error: "UnAuthorized request" });
+    if (!dbUser) return res.status(400).json({ success: false, error: "UnAuthorized request" });
 
     const userIdentifier = dbUser?.email.split("@")[0]
-    console.log(dbUser)
 
-    const fileName = `${uuidv4()}-${file.originalname}`
-    const fileUrl = `${userIdentifier}/${uuidv4()}-${file.originalname}`
+    const fileName = `${uuid}-${file.originalname}`
+    const fileUrl = `${userIdentifier}/${fileName}`
 
     const param = {
       Bucket: bucketName,
@@ -137,16 +137,14 @@ const createFileUploadController = async (req: Request, res: Response) => {
       url: fileUrl,
       user: req.user,
     });
-    
-    
-    console.log(dbFile)
-    io.emit("fileUploaded", { mesage:`${userIdentifier} just upload a new file. Click to view detail`, dbFile });
+
+    io.emit("fileUploaded", { mesage: `${userIdentifier} just upload a new file. Click to view detail`, dbFile });
 
 
-    res.status(200).json({ success: true, data: dbFile, message: "Files uploaded successfully" });
+    res.status(200).json(createSuccessResponse({ success: true, data: dbFile, message: "Files uploaded successfully" }));
   } catch (error) {
     console.error("Error uploading files:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    res.status(500).json(createErrorResponse(`Internal server error, ${error}`));
   }
 };
 
@@ -157,12 +155,12 @@ const getFileController = async (req: Request, res: Response) => {
     const file = await fileUploadRepository.getFileById(fileId);
 
 
-    if (file) return res.status(200).json(file);
-    return res.status(404).json({ "message": "File not found" });
+    if (file) return res.status(200).json(createSuccessResponse(file));
+    return res.status(404).json(createErrorResponse("File not found"));
 
   } catch (error) {
     console.error("Error reading file:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
@@ -172,12 +170,12 @@ const searchFileController = async (req: Request, res: Response) => {
     const file = req.query.fileData?.toString();
     if (file) {
       const fileDb = await fileUploadRepository.searchFile(file);
-      if (fileDb) return res.status(200).json(file);
-      return res.status(404).json({ "message": "File not found" });
+      if (fileDb) return res.status(200).json(createSuccessResponse(file));
+      return res.status(404).json(createErrorResponse("File not found"));
     }
   } catch (error) {
     console.error("Error reading file:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
@@ -188,12 +186,12 @@ const searchUsersFileController = async (req: Request, res: Response) => {
     const file = await fileUploadRepository.getFileById(fileId);
 
 
-    if (file) return res.status(200).json(file);
-    return res.status(404).json({ "message": "File not found" });
+    if (file) return res.status(200).json(createSuccessResponse(file));
+    return res.status(404).json(createErrorResponse("File not found"));
 
   } catch (error) {
     console.error("Error reading file:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json(createErrorResponse("Internal server error"));
   }
 };
 
