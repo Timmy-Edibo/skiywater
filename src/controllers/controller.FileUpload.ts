@@ -1,6 +1,5 @@
 import { Response, Request } from "express";
 import mongoose, { Types } from "mongoose";
-import { validationResult } from "express-validator";
 import userRepository from "../repository/repository.User";
 import fileUploadRepository from "../repository/repository.FileUpload";
 
