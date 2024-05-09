@@ -1,8 +1,6 @@
-# Socials App
+# File Upload and Management System
 
-Welcome to the Backend Engineer Assessment! In this assessment, you will be tasked
-with building a RESTful API for a basic social media platform. The API will facilitate user
-interactions and data management within the platform.
+Welcome to the skiywater File upload and management system. This project provides very useful endpoint for secure upload and management of file to the cloud. The The RESTful API will facilitate user interactions and file management within the platform.
 
 ## Project Setup Instructions
 
@@ -10,12 +8,12 @@ To set up the project, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Timmy-Edibo/thco_tasks.git
+   git clone https://github.com/Timmy-Edibo/skiywater.git
 
 
 2. Navigate to the project directory:
     ```bash
-    cd thco_tasks.git
+    cd skiywater.git
 
 
 3. Install dependencies::
@@ -49,6 +47,6 @@ For development purposes, you can run the following command which will start the
 
 
 API Documentation
-The API documentation will be available at http://localhost:3000/api-docs once the server is running.
+The API documentation will be available at https://bit.ly/skiywater-backend-tasks-docs once the server is running.
 
 
