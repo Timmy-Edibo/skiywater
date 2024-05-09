@@ -8,7 +8,7 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from "../config/config.error";
-import { bucketName, s3Client } from "../services/services.FileUploader";
+import { bucketName, s3Client } from "../config/config.FileUploader";
 
 import { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';

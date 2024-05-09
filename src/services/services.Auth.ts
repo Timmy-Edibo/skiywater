@@ -1,8 +1,6 @@
 
 // authService.ts
-import jwt,  { JwtPayload } from 'jsonwebtoken';
-import { Request, Response } from 'express';
-import UserRepository from '../repository/repository.User';
+import jwt from 'jsonwebtoken';
 const bcrypt = require('bcryptjs');
 
 export interface IJWTPayload {
