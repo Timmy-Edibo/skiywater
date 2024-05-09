@@ -67,8 +67,8 @@ The API documentation will be available at https://bit.ly/skiywater-backend-task
 
 Solution
 
-Link to documentation (Postman API Documentation)
-    ```https://bit.ly/skiywater-backend-tasks-docs
+## Link to documentation (Postman API Documentation)
+https://bit.ly/skiywater-backend-tasks-docs
 
 
 ## EMR Diagram:
