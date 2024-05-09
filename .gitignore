@@ -15,3 +15,5 @@ build/*
 
 node_*/
 node_*/
+
+.env

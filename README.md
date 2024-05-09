@@ -6,6 +6,16 @@ Welcome to the skiywater File upload and management system. This project provide
 
 To set up the project, follow these steps:
 
+
+#To run locally:
+Install mongodb on your local machine:
+    Ubuntu: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+    Windows: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
+
+    Edit "MONGO_URL_DEV"  field in your .env file and specify db name of your choice
+    e.g MONGO_URL_DEV="mongodb://localhost/skiywater" where "skiywater" is the db name
+
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/Timmy-Edibo/skiywater.git
@@ -22,7 +32,12 @@ To set up the project, follow these steps:
 
 
 
-4. Build the TypeScript files:
+4. RUn the TypeScript files:
+    ```bash
+    npm run dev
+
+
+5. Build the TypeScript files:
     ```bash
     npm run build
 
@@ -50,3 +65,29 @@ API Documentation
 The API documentation will be available at https://bit.ly/skiywater-backend-tasks-docs once the server is running.
 
 
+Solution
+
+Link to documentation (Postman API Documentation)
+    ```https://bit.ly/skiywater-backend-tasks-docs
+
+
+EMR Diagram:
+https://lucid.app/lucidchart/823e7c53-bd02-4020-8215-91c91863ff3b/edit?viewport_loc=-808%2C93%2C2246%2C1044%2C0_0&invitationId=inv_9bbb677d-d6c3-469b-b4f2-832af69807fd
+
+
+
+GitHub link:
+    ``` https://github.com/Timmy-Edibo/skiywater
+
+
+Link to the backend (Hosted on Render Cloud)
+    ````https://skiywater.onrender.com
+
+
+#Technologies and toolings Used:
+    ```Express Js (Webserver for handling HTTP and WebSocket requests)
+    ```Multer
+    ```AWS S3 (Cloud object storage for storing files)
+    ```MongoDB (Used for storing users and File)
+    ```Postman (API testing and documentation)
+    ```GitHub (Code repository)
