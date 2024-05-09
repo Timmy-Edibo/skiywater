@@ -9,11 +9,11 @@ To set up the project, follow these steps:
 
 #To run locally:
 Install mongodb on your local machine:
-    Ubuntu: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
-    Windows: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
+Ubuntu: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+Windows: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/
 
-    Edit "MONGO_URL_DEV"  field in your .env file and specify db name of your choice
-    e.g MONGO_URL_DEV="mongodb://localhost/skiywater" where "skiywater" is the db name
+Edit "MONGO_URL_DEV"  field in your .env file and specify db name of your choice
+e.g MONGO_URL_DEV="mongodb://localhost/skiywater" where "skiywater" is the db name
 
 
 1. Clone the repository:
@@ -85,9 +85,9 @@ Link to the backend (Hosted on Render Cloud)
 
 
 #Technologies and toolings Used:
-    ```Express Js (Webserver for handling HTTP and WebSocket requests)
-    ```Multer
-    ```AWS S3 (Cloud object storage for storing files)
-    ```MongoDB (Used for storing users and File)
-    ```Postman (API testing and documentation)
-    ```GitHub (Code repository)
+ -Express Js (Webserver for handling HTTP and WebSocket requests)
+ -Multer
+ -AWS S3 (Cloud object storage for storing files)
+ -MongoDB (Used for storing users and File)
+ -Postman (API testing and documentation)
+ -GitHub (Code repository)
