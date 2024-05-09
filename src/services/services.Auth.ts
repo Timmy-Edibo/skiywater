@@ -30,7 +30,6 @@ export const verifyToken = (token: string): IJWTPayload => {
 export const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(password, salt);
-  console.log(hash);
   return hash;
 };
 

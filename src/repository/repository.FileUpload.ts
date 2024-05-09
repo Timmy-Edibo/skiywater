@@ -1,4 +1,4 @@
-import  FileUpload from "../models/model.FileUpload";
+import FileUpload from "../models/model.FileUpload";
 
 class FileUploadRepository {
   async uploadFile(fileUploadData: Object) {
@@ -29,6 +29,22 @@ class FileUploadRepository {
 
   async deleteFile(fileId: string) {
     return FileUpload.findByIdAndDelete(fileId);
+  }
+
+  async getFileByUrl(fileUrl:string){
+    return FileUpload.findOne({url: fileUrl})
+  }
+
+  async searchFile(searchCriteria: string) {
+    const query = {
+      $or: [
+        { field: searchCriteria },
+        { _id: searchCriteria },
+        { filename: searchCriteria }
+      ]
+    };
+
+    return FileUpload.find(query);
   }
 
 }

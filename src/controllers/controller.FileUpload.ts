@@ -26,13 +26,18 @@ const isAdmin = async (current_user: string) => {
 };
 
 
-const createPresignUrlController = async (req: Request, res: Response) => {
+const DownloadPresignUrlController = async (req: Request, res: Response) => {
   try {
+    const io =req.app.get("io")
+
     const type = req.query.type
     const link = req.query.link
 
     if (!link) return res.status(400).json({ success: false, error: "No link is supplied" });
     if (!type || type !== "get") res.status(403).json({ success: false, error: "Operation not allowed" });
+
+    const fileDb = await fileUploadRepository.getFileByUrl(link.toString())
+    if(!fileDb) return res.status(404).json(createErrorResponse("File not found"))
 
     const param = {
       Bucket: bucketName,
@@ -40,6 +45,11 @@ const createPresignUrlController = async (req: Request, res: Response) => {
     }
     const command = new GetObjectCommand(param);
     const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 20 });
+
+    //get file with the link supplied
+    const socketData =  {message:`${req.user} viewed your file. Click to see file detail`, fileDb, ownerId: fileDb?.user, downloaderId: req.user}
+    io.emit("fileDownloaded", socketData)
+    console.log(socketData)
 
     // Return the pre-signed URL to the client
     res.status(200).json({ success: true, presignedUrl });
@@ -50,16 +60,63 @@ const createPresignUrlController = async (req: Request, res: Response) => {
 };
 
 
+const UploadPresignUrlController = async (req: Request, res: Response) => {
+  try {
+    const io = req.app.get("io");
+
+    const type = req.body.type
+    const file = req.file
+
+    if (!file) return res.status(400).json({ success: false, error: "No file is uploaded" });
+    if (!type || type !== "put") res.status(403).json({ success: false, error: "Operation not allowed" });
+
+    const dbUser = await userRepository.getUserById(req.user)
+    const userIdentifier = dbUser?.email.split("@")[0]
+
+    const fileName = `${uuidv4()}-${file.originalname}`
+    const fileUrl = `${userIdentifier}/${fileName}`
+
+    const param = {
+      Bucket: bucketName,
+      Key: fileUrl,
+      ContentType: file.mimetype
+    }
+    const command = new PutObjectCommand(param);
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 20 });
+
+    const dbFile = await fileUploadRepository.uploadFile({
+      _id: new mongoose.Types.ObjectId(),
+      filename: fileName,
+      dirName: userIdentifier,
+      url: fileUrl,
+      user: req.user,
+    });
+
+    io.emit("fileUploaded", { mesage:`${userIdentifier} just upload a new file. Click to view detail`, dbFile });
+
+    // Return the pre-signed URL to the client
+    res.status(200).json({ success: true, presignedUrl, dbFile });
+  } catch (error) {
+    console.error("Error uploading files:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+
+
 const createFileUploadController = async (req: Request, res: Response) => {
   console.log(req.user, req.file)
+  const io = req.app.get("io");
 
   try {
     if (!req.file) return res.status(400).json({ success: false, error: "No files uploaded" });
 
-    console.log(req.file)
     const file = req.file
-    const dbUser = await userRepository.getUserById(req.user)
+    const dbUser = await userRepository.getUserById(req.user.toString())
+    if(!dbUser) return res.status(400).json({ success: false, error: "UnAuthorized request" });
+
     const userIdentifier = dbUser?.email.split("@")[0]
+    console.log(dbUser)
 
     const fileName = `${uuidv4()}-${file.originalname}`
     const fileUrl = `${userIdentifier}/${uuidv4()}-${file.originalname}`
@@ -75,10 +132,16 @@ const createFileUploadController = async (req: Request, res: Response) => {
 
     const dbFile = await fileUploadRepository.uploadFile({
       _id: new mongoose.Types.ObjectId(),
-      name: fileName,
+      filename: fileName,
+      dirName: userIdentifier,
       url: fileUrl,
       user: req.user,
     });
+    
+    
+    console.log(dbFile)
+    io.emit("fileUploaded", { mesage:`${userIdentifier} just upload a new file. Click to view detail`, dbFile });
+
 
     res.status(200).json({ success: true, data: dbFile, message: "Files uploaded successfully" });
   } catch (error) {
@@ -104,6 +167,36 @@ const getFileController = async (req: Request, res: Response) => {
 };
 
 
+const searchFileController = async (req: Request, res: Response) => {
+  try {
+    const file = req.query.fileData?.toString();
+    if (file) {
+      const fileDb = await fileUploadRepository.searchFile(file);
+      if (fileDb) return res.status(200).json(file);
+      return res.status(404).json({ "message": "File not found" });
+    }
+  } catch (error) {
+    console.error("Error reading file:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const searchUsersFileController = async (req: Request, res: Response) => {
+  try {
+    const fileId = req.params.fileId;
+    const file = await fileUploadRepository.getFileById(fileId);
+
+
+    if (file) return res.status(200).json(file);
+    return res.status(404).json({ "message": "File not found" });
+
+  } catch (error) {
+    console.error("Error reading file:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const deleteFileController = async (req: Request, res: Response) => {
   try {
     const currentUser = req.user
@@ -119,7 +212,7 @@ const deleteFileController = async (req: Request, res: Response) => {
 
     const param = {
       Bucket: bucketName,
-      Key: file?.name,
+      Key: file?.filename,
     }
     const command = new DeleteObjectCommand(param);
     await s3Client.send(command)
@@ -181,11 +274,14 @@ const updateFileController = async (req: Request, res: Response) => {
 
 export default {
   createFileUploadController,
-  createPresignUrlController,
+  UploadPresignUrlController,
+  DownloadPresignUrlController,
   getFileController,
   deleteFileController,
   readAllFileController,
   updateFileController,
+  searchFileController,
+  searchUsersFileController
 };
 
 

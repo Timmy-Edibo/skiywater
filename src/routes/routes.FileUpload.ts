@@ -19,13 +19,18 @@ router.post(
   controller.createFileUploadController
 ); // create data inside db
 
-router.post("/presign/generate", 
-authenticateToken, 
-upload.single("file"),
-controller.createPresignUrlController); 
+router.post("/presign/download",
+  authenticateToken,
+  controller.DownloadPresignUrlController);
 
-router.get("/list", controller.readAllFileController); 
-router.get("/:fileId", controller.getFileController); 
-router.delete("/:fileId", controller.deleteFileController); 
+
+router.post("/presign/upload",
+  authenticateToken,
+  upload.single("file"),
+  controller.UploadPresignUrlController);
+
+router.get("/list", controller.readAllFileController);
+router.get("/:fileId", controller.getFileController);
+router.delete("/:fileId", controller.deleteFileController);
 
 export default router;

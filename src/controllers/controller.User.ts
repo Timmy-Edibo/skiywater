@@ -14,6 +14,8 @@ interface IUserExistence {
   exists: boolean;
 }
 
+
+
 const userAlreadyExist = async (
   username: string,
   email: string
@@ -29,6 +31,13 @@ const userAlreadyExist = async (
   } else {
     return { exists: false };
   }
+};
+
+const makeSuperuser = async () => {
+  const users = await userRepository.getAllUsers();
+  if (users.length == 0) return true
+  return false
+
 };
 
 const isAdmin = async (current_user: string) => {
@@ -52,15 +61,18 @@ const createUserController = async (req: Request, res: Response) => {
       return res.status(401).json(createErrorResponse(userExistence.message));
     }
 
+    const isSuperuserEligible = await makeSuperuser()
+
     const user = await userRepository.createUser({
       _id: new mongoose.Types.ObjectId(),
       username,
       email,
       password: hashedPassword,
       is_active: true,
-      is_admin: false,
-      is_superuser: false
+      is_admin: isSuperuserEligible,
+      is_superuser: isSuperuserEligible
     });
+    (user as any).password = undefined;
 
     res.status(201).json(createSuccessResponse(user));
   } catch (error) {
@@ -76,11 +88,10 @@ const readUserController = async (req: Request, res: Response) => {
     const user = await userRepository.getUserById(userId);
     const current_user = req.user;
 
-    if (user) {
-      const checkUser = await isAdmin(current_user);
-      if (checkUser || user._id.toString() === current_user.toString()) {
-        return res.status(200).json(createSuccessResponse({ user }));
-      }
+    const checkUser = await isAdmin(current_user);
+    if (user && (checkUser || user._id.toString() === current_user.toString())) {
+      (user as any).password = undefined;
+      return res.status(200).json(createSuccessResponse({ user }));
     } else {
       res.status(404).json({ message: 'User not found' });
     }
@@ -97,13 +108,19 @@ const readAllUserController = async (req: Request, res: Response) => {
     const current_user = req.user;
     const checkUser = await isAdmin(current_user);
 
-    // if (!checkUser) {
-    //   return res
-    //     .status(401)
-    //     .json(createErrorResponse('Unauthorized!, Admin user only'));
-    // }
-    const users = await userRepository.getAllUsers();
-    res.status(200).json(createSuccessResponse(users));
+    if (!checkUser) {
+      return res
+        .status(401)
+        .json(createErrorResponse('Unauthorized!, Admin user only'));
+    }
+    const usersDb = await userRepository.getAllUsers();
+    // Modify each user object in place to remove the password field
+    usersDb.forEach(user => {
+      (user as any).password = undefined;
+    });
+
+    console.log(usersDb)
+    res.status(200).json(createSuccessResponse(usersDb));
   } catch (error) {
     console.error('Error reading all users:', error);
     res.status(500).json(createErrorResponse('Internal server error'));
@@ -131,6 +148,10 @@ const updateUserController = async (req: Request, res: Response) => {
 const deleteUserController = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
+    const isAdminUser = await isAdmin(userId)
+
+    if (isAdminUser) return res.status(403).json(createErrorResponse("Cannot delete Admin User"))
+
     const deletedUser = await userRepository.deleteUser(userId);
 
     if (deletedUser) {

@@ -4,7 +4,8 @@ import { IUser } from './model.User';
 /** document */
 export interface IFileUpload extends Document {
   _id: string;
-  name: string;
+  filename: string;
+  dirName: string;
   url: string;
   user: Types.ObjectId | IUser['_id'];
   createdAt: Date;
@@ -13,7 +14,8 @@ export interface IFileUpload extends Document {
 }
 
 const fileUploadSchema = new mongoose.Schema<IFileUpload>({
-  name: { type: String, required: true },
+  filename: { type: String, required: true },
+  dirName: { type: String, required: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   location: String,
   url: String,

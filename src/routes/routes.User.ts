@@ -11,7 +11,7 @@ const router = express.Router();
 /** Program Block CRUD */
 router.post('/create', createUserValidator, controller.createUserController);
 router.get('/list', authenticateToken, controller.readAllUserController);
-router.get('/:userId', authenticateToken, controller.readUserController);
+router.get('/detail/:userId', authenticateToken, controller.readUserController);
 router.put(
   '/:userId',
 

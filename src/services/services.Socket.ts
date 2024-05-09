@@ -38,21 +38,24 @@ io.on("connection", (socket) => {
     console.log("always calling the notify endpoint", data);
   });
 
+  // Handle file upload event
+  socket.on('fileUploaded', (data) => {
+    console.log("seeing photo added :", data);
+    io.emit('fileUploaded', data);
+  });
+
+  // Handle file Download event
+  socket.on('fileDownloaded', (data) => {
+    console.log("seeing photo downloaded:", data);
+    const { fileData, ownerId, downloaderId } = data;
+    io.to(ownerId).emit('fileDownloadNotification', { fileData, downloaderId });
+  });
+
+
   socket.on("newUser", (data) => {
     const { username, userId } = data;
     addNewUser(username, userId, socket.id);
     console.log("seeing all user added:", onlineUsers);
-  });
-
-  socket.on("sendNotification", (data) => {
-    const { senderName, receiverName, type } = data;
-    // const receiver = getUser(receiverName);
-    // console.log("reciever......", receiver)
-    // io.to(receiver.socketId).emit("getNotification", {
-    //   senderName,
-    //   type,
-    // });
-    io.emit("getNotification", { senderName, type });
   });
 
   socket.on("disconnect", () => {
