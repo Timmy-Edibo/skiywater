@@ -71,23 +71,23 @@ Link to documentation (Postman API Documentation)
     ```https://bit.ly/skiywater-backend-tasks-docs
 
 
-EMR Diagram:
+## EMR Diagram:
 https://lucid.app/lucidchart/823e7c53-bd02-4020-8215-91c91863ff3b/edit?viewport_loc=-808%2C93%2C2246%2C1044%2C0_0&invitationId=inv_9bbb677d-d6c3-469b-b4f2-832af69807fd
 
 
 
-GitHub link:
-    ``` https://github.com/Timmy-Edibo/skiywater
+## GitHub link:
+https://github.com/Timmy-Edibo/skiywater
 
 
-Link to the backend (Hosted on Render Cloud)
-    ````https://skiywater.onrender.com
+## Link to the backend (Hosted on Render Cloud)
+https://skiywater.onrender.com
 
 
-#Technologies and toolings Used:
- -Express Js (Webserver for handling HTTP and WebSocket requests)
- -Multer
- -AWS S3 (Cloud object storage for storing files)
- -MongoDB (Used for storing users and File)
- -Postman (API testing and documentation)
- -GitHub (Code repository)
+# Technologies and toolings Used:
+- Express Js (Webserver for handling HTTP and WebSocket requests)
+- Multer
+- AWS S3 (Cloud object storage for storing files)
+- MongoDB (Used for storing users and File)
+- Postman (API testing and documentation)
+- GitHub (Code repository)
