@@ -6,7 +6,7 @@ import userRepository from '../repository/repository.User';
 import {
   createSuccessResponse,
   createErrorResponse
-} from '../config/config.error';
+} from '../config/config.responses';
 import { hashPassword } from '../services/services.Auth';
 
 interface IUserExistence {

@@ -7,7 +7,7 @@ import fileUploadRepository from "../repository/repository.FileUpload";
 import {
   createSuccessResponse,
   createErrorResponse,
-} from "../config/config.error";
+} from "../config/config.responses";
 import { bucketName, s3Client } from "../config/config.FileUploader";
 
 import { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";

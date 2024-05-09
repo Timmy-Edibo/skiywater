@@ -2,8 +2,7 @@ import { Express } from "express";
 import User from "../routes/routes.User";
 import Auth from "../routes/routes.Auth";
 import FileUpload from "../routes/routes.FileUpload";
-import { RequestContext } from "express-openid-connect";
-import { createSuccessResponse } from "../config/config.error";
+import { createSuccessResponse } from "../config/config.responses";
 
 
 export default function routing(app: Express) {
@@ -12,11 +11,6 @@ export default function routing(app: Express) {
   app.use("/api/v1/files", FileUpload);
 
   app.get("/", async (req, res) => {
-    // const oidc = await req.oidc
-    // const userInfo = oidc.user
-    // const isAuthenticated = oidc.isAuthenticated() ? "logged in": "logged out"
-    // console.log(isAuthenticated)
-
     const data = {
       About: 'Skiywater backend task for file upload and management',
       Version: '1.0.0',
