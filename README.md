@@ -1,6 +1,6 @@
 # File Upload and Management System
 
-Welcome to the skiywater File upload and management system. This project provides very useful endpoint for secure upload and management of file to the cloud. The The RESTful API will facilitate user interactions and file management within the platform.
+Welcome to the skiywater File upload and management system. This project provides very useful endpoint for secure upload and management of file to the cloud. The RESTful API will facilitate user interactions and file management within the platform.
 
 ## Project Setup Instructions
 
