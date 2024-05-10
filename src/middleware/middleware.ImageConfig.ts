@@ -4,7 +4,7 @@ import multer from 'multer'
 
 
 const fileFilter = (req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => {
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.pdf'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.pdf', '.example'];
     const fileExt = file.originalname.split('.').pop()?.toLowerCase();
 
     if (fileExt && allowedExtensions.includes(`.${fileExt}`)) {

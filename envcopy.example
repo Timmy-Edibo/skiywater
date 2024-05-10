@@ -1,0 +1,8 @@
+MONGO_URL_DEV="mongodb://localhost/skiywater"
+MONGO_URL_PROD="mongodb+srv://enter_mongodb_compass_url_here"
+SERVER_PORT="3000"
+JWT_SECRET=
+AWS_SECRET_ACCESS_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_BUCKET_NAME=
+AWS_REGION=

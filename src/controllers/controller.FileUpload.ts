@@ -141,7 +141,7 @@ const createFileUploadController = async (req: Request, res: Response) => {
     io.emit("fileUploaded", { mesage: `${userIdentifier} just upload a new file. Click to view detail`, dbFile });
 
 
-    res.status(200).json(createSuccessResponse({ success: true, data: dbFile, message: "Files uploaded successfully" }));
+    res.status(200).json(createSuccessResponse({ success: true, data: dbFile, message: "File uploaded successfully" }));
   } catch (error) {
     console.error("Error uploading files:", error);
     res.status(500).json(createErrorResponse(`Internal server error, ${error}`));

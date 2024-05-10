@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import routing from "../../src/constants/routes";
 const request = require('supertest');
 
-import { app } from "../../src/services/services.Socket";
+import { app, io } from "../../src/services/services.Socket";
 import UserRepository from "../../src/repository/repository.User";
 import { MongoMemoryServer } from "mongodb-memory-server"
 import { hashPassword } from '../../src/services/services.Auth';
@@ -15,6 +15,7 @@ const fs = require('fs');
 
 import express from "express";
 app.use(express.json());
+app.set("io", io)
 routing(app);
 
 const userId = new mongoose.Types.ObjectId().toString();
@@ -79,10 +80,10 @@ describe('Sending Files with Multer', () => {
     accessToken = loginResponse.body.accessToken;
   });
 
-  it('Expect 200 response: Upload file to AWS s3 via multer ', async () => {
-    const mockRes = { message: 'File uploaded successfully' };
+  it('Expect 201 response: Upload file to AWS s3 via multer ', async () => {
+    const mockRes = 'File uploaded successfully';
 
-    const fileData = fs.readFileSync('/home/timmy/projects/backend/skiywater/.env.example');
+    const fileData = fs.readFileSync('/home/timmy/projects/backend/skiywater/coding.jpeg');
     const file = Buffer.from(fileData);
 
     mock.onPost("/api/v1/files/upload-file").reply(200, mockRes)
@@ -90,18 +91,16 @@ describe('Sending Files with Multer', () => {
     const blob = new Blob([file]);
     formData.append('file', blob, 'file');
 
-    // Send a POST request with the file data
-    const response = await axios.post('/api/v1/files/upload-file', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
 
-    console.log(response)
+    const response = await request(app).post('/api/v1/files/upload-file')
+      .set({
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'multipart/form-data'
+      }).attach('file', fileData, 'coding.jpeg')
+
     expect(response.status).toBe(200);
-    expect(response.data).toEqual(mockRes);
-  })
+    expect(response.body.data.message).toEqual(mockRes);
+  }, 100000)
 
   // Test uploadAllFilesController
   it('should retrieve  all files', async () => {
@@ -196,4 +195,5 @@ describe('Sending Files with Multer', () => {
     await mongoose.disconnect();
     await mongoose.connection.close();
   });
+
 });
