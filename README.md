@@ -38,7 +38,12 @@ e.g MONGO_URL_DEV="mongodb://localhost/skiywater" where "skiywater" is the db na
     npm run dev
 
 
-5. Build the TypeScript files:
+5. To run test:
+    ```bash
+    npm test
+
+
+6. Build the TypeScript files:
     ```bash
     npm run build
 
