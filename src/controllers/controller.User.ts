@@ -119,7 +119,7 @@ const readAllUserController = async (req: Request, res: Response) => {
       (user as any).password = undefined;
     });
 
-    console.log(usersDb)
+    // console.log(usersDb)
     res.status(200).json(createSuccessResponse(usersDb));
   } catch (error) {
     console.error('Error reading all users:', error);

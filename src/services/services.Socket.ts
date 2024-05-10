@@ -27,16 +27,9 @@ const removeUser = (socketId: string) => {
   onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
 };
 
-const getUser = (username: string) => {
-  return onlineUsers.find((user) => user.username === username);
-};
 
 io.on("connection", (socket) => {
   console.log("client connected", socket.id);
-
-  socket.on("notify", (data) => {
-    console.log("always calling the notify endpoint", data);
-  });
 
   // Handle file upload event
   socket.on('fileUploaded', (data) => {

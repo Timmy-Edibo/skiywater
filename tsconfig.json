@@ -107,5 +107,6 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": ["src/**/*.ts", "public/**/*",  "src/utils/swagger.ts"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "**/*.test.ts"
+],
 }

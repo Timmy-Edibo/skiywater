@@ -104,6 +104,7 @@ const UploadPresignUrlController = async (req: Request, res: Response) => {
 
 
 const createFileUploadController = async (req: Request, res: Response) => {
+  console.log("User.......", req.user)
 
   try {
     const io = req.app.get("io");
@@ -225,11 +226,12 @@ const deleteFileController = async (req: Request, res: Response) => {
 const readAllFileController = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
-  const io = req.app.get("io");
+  // const io = req.app.get("io");
 
   try {
     let files = await fileUploadRepository.getAllFiles(page, limit)
-    io.emit("notify", { files });
+    // io.emit("notify", { files });
+    console.log("length............", files.length)
 
     return res.status(200).json(createSuccessResponse(files));
   } catch (error) {

@@ -28,7 +28,7 @@ const login = async (req: Request, res: Response) => {
 
     res.status(200).json({ accessToken, refreshToken });
   } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: `Login failed ${error}` });
   }
 };
 
