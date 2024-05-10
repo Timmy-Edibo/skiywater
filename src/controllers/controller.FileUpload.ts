@@ -27,10 +27,16 @@ const isAdmin = async (current_user: string) => {
 
 const DownloadPresignUrlController = async (req: Request, res: Response) => {
   try {
+  
     const io = req.app.get("io")
 
     const type = req.query.type
-    const link = req.query.link
+    const namespace = req.query.namespace
+    const filename = req.query.filename
+    const link = `${namespace}/${filename}` 
+
+
+    console.log("link from api", link)
 
     if (!link) return res.status(400).json({ success: false, error: "No link is supplied" });
     if (!type || type !== "get") res.status(403).json({ success: false, error: "Operation not allowed" });
@@ -86,7 +92,7 @@ const UploadPresignUrlController = async (req: Request, res: Response) => {
     const dbFile = await fileUploadRepository.uploadFile({
       _id: new mongoose.Types.ObjectId(),
       filename: fileName,
-      dirName: userIdentifier,
+      namespace: userIdentifier,
       url: fileUrl,
       user: req.user,
     });
@@ -133,7 +139,7 @@ const createFileUploadController = async (req: Request, res: Response) => {
     const dbFile = await fileUploadRepository.uploadFile({
       _id: new mongoose.Types.ObjectId(),
       filename: fileName,
-      dirName: userIdentifier,
+      namespace: userIdentifier,
       url: fileUrl,
       user: req.user,
     });

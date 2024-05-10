@@ -14,8 +14,10 @@ const fs = require('fs');
 
 
 import express from "express";
+import repositoryFileUpload from "../../src/repository/repository.FileUpload";
 app.use(express.json());
 app.set("io", io)
+app.use(express.urlencoded({ extended: true }));
 routing(app);
 
 const userId = new mongoose.Types.ObjectId().toString();
@@ -23,20 +25,8 @@ const userId = new mongoose.Types.ObjectId().toString();
 
 describe('Sending Files with Multer', () => {
   let accessToken: string;
-  let user: any;
-  interface User {
-    _id: string;
-    username: string;
-    email: string;
-    is_admin: boolean;
-    is_superuser: boolean;
-    is_active: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    __v: number;
-  }
-
-
+  let fileObtained: any;
+  let user: any
 
   beforeAll(async () => {
     const mongoServer = await MongoMemoryServer.create();
@@ -80,6 +70,8 @@ describe('Sending Files with Multer', () => {
     accessToken = loginResponse.body.accessToken;
   });
 
+
+  // Test uploadAllFileController
   it('Expect 201 response: Upload file to AWS s3 via multer ', async () => {
     const mockRes = 'File uploaded successfully';
 
@@ -102,11 +94,15 @@ describe('Sending Files with Multer', () => {
     expect(response.body.data.message).toEqual(mockRes);
   }, 100000)
 
-  // Test uploadAllFilesController
+
+  // Test retriveAllFilesController
   it('should retrieve  all files', async () => {
     const response = await request(app)
       .get(`/api/v1/files/list`)
       .set('Authorization', `Bearer ${accessToken}`);
+
+    // console.log(response.body.data)
+    fileObtained = response.body.data[0]
 
     // Assert response status and data
     expect(response.status).toBe(200);
@@ -116,79 +112,37 @@ describe('Sending Files with Multer', () => {
 
   });
 
-  // Test retrieveAllUserController
-  // it('should retrieve  all users', async () => {
-  //   const response = await request(app)
-  //     .get(`/api/v1/users/list`)
-  //     .set('Authorization', `Bearer ${accessToken}`);
-
-  //   // Assert response status and data
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.success).toBe(true);
-  //   expect(Array.isArray(response.body.data)).toBe(true);
-  //   expect(response.body.data.length).toBeGreaterThan(0);
-  //   expect(response.body.data.length).toBe(2);
-
-  //   (response.body.data as User[]).forEach((user: User) => {
-  //     expect(user).toHaveProperty('_id');
-  //     expect(user).toHaveProperty('username');
-  //     expect(user).toHaveProperty('email');
-  //     expect(user).toHaveProperty('is_admin');
-  //     expect(user).toHaveProperty('is_superuser');
-  //     expect(user).toHaveProperty('is_active');
-  //     expect(user).toHaveProperty('createdAt');
-  //     expect(user).toHaveProperty('updatedAt');
-  //   });
-  // });
 
   // Test retrieveUserController
-  // it('should retrieve user details', async () => {
-  //   const response = await request(app)
-  //     .get(`/api/v1/users/detail/${user._id}`)
-  //     .set('Authorization', `Bearer ${accessToken}`);
+  it('should retrieve file details', async () => {
+    const response = await request(app)
+      .get(`/api/v1/files/${fileObtained._id}`)
+      .set('Authorization', `Bearer ${accessToken}`);
 
-  //   // Assert response status and data
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.success).toBe(true);
-  //   expect(response.body.data.user.username).toBe(user.username);
-  //   expect(response.body.data.user.email).toBe(user.email);
-  // });
-
-
-
-  // // Test updateUserController
-  // it('should update user', async () => {
-  //   // Update user details here
-  //   const response = await request(app)
-  //     .put(`/api/v1/users/${user2._id}`)
-  //     .send({ username: 'updatedUsername', is_active: false })
-  //     .set('Authorization', `Bearer ${accessToken}`);
-
-  //   // console.log(response.body)
-  //   // Assert response status and data
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.user.username).toEqual("updatedUsername");
-  //   expect(response.body.user.is_active).toEqual(false);
-
-  //   // Check if the user still exists in the database
-  // });
+    // Assert response status and data
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.filename).toBe(fileObtained.filename);
+    expect(response.body.data.user).toBe(fileObtained.user);
+  });
 
 
-  // // Test deleteUserController
-  // it('should delete user', async () => {
-  //   const response = await request(app)
-  //     .delete(`/api/v1/users/${user2._id}`)
-  //     .set('Authorization', `Bearer ${accessToken}`);
+  it('It should obtain presign url for downloading files securely', async () => {
 
-  //   // Assert response status and data
-  //   expect(response.status).toBe(204);
-  //   expect(response.body).toEqual({});
+    const response = await request(app)
+      .get(`/api/v1/files/presign/download`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .query({
+        type: 'get',
+        namespace: fileObtained.namespace,
+        filename: fileObtained.filename
+      });
 
-  //   // Check if the user still exists in the database
-  //   const deletedUser = await UserRepository.getUserById(user2._id);
-  //   expect(deletedUser).toBeNull();
-  // });
-
+    // Assert response status and data
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveProperty('presignedUrl');
+  });
 
 
   afterAll(async () => {

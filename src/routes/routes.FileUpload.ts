@@ -14,7 +14,7 @@ router.post(
   controller.createFileUploadController
 );
 
-router.post("/presign/download",
+router.get("/presign/download",
   authenticateToken,
   controller.DownloadPresignUrlController);
 
