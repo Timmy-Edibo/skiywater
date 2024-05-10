@@ -6,7 +6,6 @@ dontenv.config()
 
 const accessKey = process.env.AWS_ACCESS_KEY_ID || "";
 const secretKey = process.env.AWS_SECRET_ACCESS_KEY || "";
-const region = process.env.AWS_REGION || "";
 
 // Define the configuration object
 const s3Config = {
@@ -14,7 +13,6 @@ const s3Config = {
     accessKeyId: accessKey,
     secretAccessKey: secretKey,
   },
-  region: region,
 };
 
 export const s3Client = new S3Client(s3Config);

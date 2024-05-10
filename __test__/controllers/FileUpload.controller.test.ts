@@ -14,7 +14,6 @@ const fs = require('fs');
 
 
 import express from "express";
-import repositoryFileUpload from "../../src/repository/repository.FileUpload";
 app.use(express.json());
 app.set("io", io)
 app.use(express.urlencoded({ extended: true }));
@@ -89,6 +88,8 @@ describe('Sending Files with Multer', () => {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'multipart/form-data'
       }).attach('file', fileData, 'coding.jpeg')
+
+      console.log("response form test", response)
 
     expect(response.status).toBe(200);
     expect(response.body.data.message).toEqual(mockRes);
